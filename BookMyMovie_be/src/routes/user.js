@@ -6,9 +6,10 @@ const userRouter = express.Router();
 userRouter.get("/user", userAuth, (req, res) => {
   try {
     const user = req.user;
+    const { password, ...safeUser } = user._doc;
 
     res.status(200).json({
-      data: user,
+      data: safeUser,
       message: "fetched user successfully",
       success: true,
       error: false,

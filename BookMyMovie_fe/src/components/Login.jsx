@@ -6,8 +6,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { API_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../store/userSlice";
 import { validateLoginData } from "../utils/validate";
+import { setUser } from "../store/userSlice";
 
 const Login = () => {
   const [viewPassword, setViewPassword] = useState(false);
@@ -25,6 +25,18 @@ const Login = () => {
       navigate("/");
     }
   }, [user]);
+
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/user`, {
+        withCredentials: true,
+      });
+
+      return response?.data?.data
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleInput = (e) => {
     setInputData({ ...inputData, [e.target.name]: e.target.value });
@@ -46,7 +58,10 @@ const Login = () => {
 
       if (response?.status == 200) {
         toast.success(response?.data?.message);
-        dispatch(setUser(response?.data?.data));
+
+        const userData = await fetchUser();
+        dispatch(setUser(userData));
+
         setInputData({
           email: "",
           password: "",

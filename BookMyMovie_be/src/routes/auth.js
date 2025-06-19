@@ -78,12 +78,11 @@ authRouter.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "None", // Required for cross-origin cookies (Vercel + API on another domain)
+      sameSite: "None",
       maxAge: 3 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
-      data: user,
       message: "Login successfully",
       success: true,
       error: false,
