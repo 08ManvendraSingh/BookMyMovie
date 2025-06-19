@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
 import { API_URL } from "../utils/constants";
+import { useSelector } from "react-redux";
+import {Link} from 'react-router';
 
 const BookingCard = ({ ticket }) => {
   return (
@@ -38,19 +39,16 @@ const BookingCard = ({ ticket }) => {
                 }
               )}{" "}
               at{" "}
-              {new Date(`${ticket?.createdAt}`).toLocaleTimeString(
-                "en-US",
-                {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true,
-                }
-              )}
+              {new Date(`${ticket?.createdAt}`).toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
             </p>
           </div>
 
           <div className="mt-4 sm:mt-0 text-right">
-            <p className="text-3xl font-bold">{ticket?.bookingAmount}</p>
+            <p className="text-3xl font-bold">₹ {ticket?.bookingAmount}</p>
             <p className="text-gray-400">
               Total Tickets: {ticket?.bookedSeats.length}
             </p>
@@ -58,9 +56,13 @@ const BookingCard = ({ ticket }) => {
               Seat Number: {ticket?.bookedSeats.join(", ")}
             </p>
 
-            <button className="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full text-sm transition-colors">
-              Pay Now
-            </button>
+            {!ticket.iPaid && (
+              <Link to={`${ticket?.paymentLink}`}>
+                <button className="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full text-sm transition-colors">
+                  Pay Now
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -70,14 +72,17 @@ const BookingCard = ({ ticket }) => {
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
+  const { user } = useSelector((store) => store?.user);
 
   const fetchBookings = async () => {
     try {
       const response = await axios.get(`${API_URL}/myBookings`, {
         withCredentials: true,
       });
-      setBookings(response?.data?.data);
-      console.log(response);
+
+      if (response?.status == 200) {
+        setBookings(response?.data?.data);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -85,7 +90,7 @@ const MyBookings = () => {
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [user]);
 
   return (
     <main className="px-4 md:px-8 lg:px-16 xl:px-32 py-8 mt-18">
@@ -93,9 +98,27 @@ const MyBookings = () => {
 
       {/* Booking Cards */}
       <div className="space-y-4 flex flex-col items-center">
-        {/* K.O. Movie */}
-        {bookings.length > 0 &&
-          bookings.map((ticket) => <BookingCard ticket={ticket} />)}
+        {bookings.length > 0 ? (
+          bookings.map((ticket) => <BookingCard ticket={ticket} />)
+        ) : (
+          <div className="flex flex-col items-center justify-center mt-10 text-center">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+              alt="No Bookings"
+              className="w-64 h-64 mb-6 opacity-80"
+            />
+            <h2 className="text-xl font-semibold mb-2">No bookings yet</h2>
+            <p className="text-gray-600 mb-4">
+              Looks like you haven’t booked any tickets yet.
+            </p>
+            <a
+              href="/movies"
+              className="bg-[#ff4d79] hover:bg-[#ff3366] text-white px-4 py-2 rounded-md transition"
+            >
+              Browse Movies
+            </a>
+          </div>
+        )}
       </div>
     </main>
   );

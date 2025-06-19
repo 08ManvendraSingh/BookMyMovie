@@ -6,23 +6,24 @@ import axios from "axios";
 import { API_URL } from "../utils/constants";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { validateSignupData } from "../utils/validate";
 
 const Signup = () => {
   const [viewPassword, setViewPassword] = useState(false);
+  const [error, setError] = useState({});
   const [inputData, setInputData] = useState({
     userName: "",
     email: "",
     password: "",
   });
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const { user } = useSelector((store) => store?.user);
 
-  useEffect(()=>{
-    if(user){
-      navigate('/');
+  useEffect(() => {
+    if (user) {
+      navigate("/");
     }
-  },[user]);
-  
+  }, [user]);
 
   const handleInput = (e) => {
     setInputData({ ...inputData, [e.target.name]: e.target.value });
@@ -31,6 +32,12 @@ const Signup = () => {
   const handleSignup = async (e) => {
     try {
       e.preventDefault();
+
+      let validateError = validateSignupData(inputData);
+      setError(validateError);
+      if (Object.keys(validateError).length > 0) {
+        return;
+      }
 
       const response = await axios.post(`${API_URL}/signup`, inputData, {
         withCredentials: true,
@@ -43,13 +50,10 @@ const Signup = () => {
           email: "",
           password: "",
         });
-        navigate('/login');
+        navigate("/login");
       }
-
-      console.log(response);
     } catch (error) {
       toast.error(error?.response?.data?.message);
-      console.log(error);
     }
   };
 
@@ -77,12 +81,16 @@ const Signup = () => {
                   name="userName"
                   value={inputData.userName}
                   onChange={handleInput}
-                  required
                   className="w-full text-sm border-b border-gray-300 focus:border-[#ff4d79] px-2 py-3 outline-none"
                   placeholder="Enter name"
                 />
                 <FaUser className="w-[18px] h-[18px] absolute right-2" />
               </div>
+              {error?.userName && (
+                <div className="text-red-500 text-sm mb-4">
+                  {error?.userName}
+                </div>
+              )}
             </div>
 
             <div className="mt-8">
@@ -92,12 +100,14 @@ const Signup = () => {
                   name="email"
                   value={inputData.email}
                   onChange={handleInput}
-                  required
                   className="w-full text-sm border-b border-gray-300 focus:border-[#ff4d79] px-2 py-3 outline-none"
                   placeholder="Enter email"
                 />
                 <FaEnvelope className="w-[18px] h-[18px] absolute right-2" />
               </div>
+              {error?.email && (
+                <div className="text-red-500 text-sm mb-4">{error?.email}</div>
+              )}
             </div>
 
             <div className="mt-8">
@@ -107,7 +117,6 @@ const Signup = () => {
                   name="password"
                   value={inputData.password}
                   onChange={handleInput}
-                  required
                   className="w-full text-sm border-b border-gray-300 focus:border-[#ff4d79] px-2 py-3 outline-none"
                   placeholder="Enter password"
                 />
@@ -123,14 +132,17 @@ const Signup = () => {
                   />
                 )}
               </div>
+              {error?.password && (
+                <div className="text-red-500 text-sm mb-4">
+                  {error?.password}
+                </div>
+              )}
             </div>
-
-            {/* {error && <div className="text-red-500 text-sm mb-4">{error}</div>} */}
 
             <div className="mt-12">
               <button
                 type="submit"
-                className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wide rounded-md text-white bg-[#ff4d79] hover:bg-[#ff3366] focus:outline-none"
+                className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wide rounded-md text-white bg-[#ff4d79] hover:bg-[#ff3366] focus:outline-none cursor-pointer"
               >
                 Create an account
               </button>

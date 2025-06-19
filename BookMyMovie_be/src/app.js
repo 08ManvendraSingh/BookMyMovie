@@ -8,9 +8,13 @@ const { userRouter } = require("./routes/user");
 const { movieRouter } = require("./routes/movie");
 const { showRouter } = require("./routes/show");
 const { bookingRouter } = require("./routes/booking");
+const { stripeWebHooks } = require("./routes/stripeWebhook");
 const app = express();
 
 dotenv.config();
+
+app.use('/api/stripe',express.raw({type:"application/json"}),stripeWebHooks)
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(

@@ -27,7 +27,6 @@ const Header = () => {
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
-      console.log(error);
     }
   };
 
@@ -48,18 +47,17 @@ const Header = () => {
         <Link to={"/movies"} className="hover:text-gray-300 transition">
           Movies
         </Link>
-        <Link to={"/theaters"} className="hover:text-gray-300 transition">
-          Theaters
-        </Link>
-        <Link to={"/releases"} className="hover:text-gray-300 transition">
-          Releases
-        </Link>
+        {user && (
+          <Link to={"/myBooking"} className="hover:text-gray-300 transition">
+            MyBookings
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center space-x-4">
         {!user ? (
           <Link to={"/login"}>
-            <button className="bg-[#ff4d79] hover:bg-[#ff3366] text-white px-6 py-1.5 rounded-full transition">
+            <button className="bg-[#ff4d79] hover:bg-[#ff3366] text-white px-6 py-1.5 rounded-full transition cursor-pointer">
               Login
             </button>
           </Link>

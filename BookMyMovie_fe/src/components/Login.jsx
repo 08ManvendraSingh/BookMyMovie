@@ -7,9 +7,11 @@ import axios from "axios";
 import { API_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/userSlice";
+import { validateLoginData } from "../utils/validate";
 
 const Login = () => {
   const [viewPassword, setViewPassword] = useState(false);
+  const [error, setError] = useState({});
   const [inputData, setInputData] = useState({
     email: "",
     password: "",
@@ -18,11 +20,11 @@ const Login = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store?.user);
 
-  useEffect(()=>{
-    if(user){
-      navigate('/');
+  useEffect(() => {
+    if (user) {
+      navigate("/");
     }
-  },[user]);
+  }, [user]);
 
   const handleInput = (e) => {
     setInputData({ ...inputData, [e.target.name]: e.target.value });
@@ -31,6 +33,12 @@ const Login = () => {
   const handleLogin = async (e) => {
     try {
       e.preventDefault();
+
+      let validateError = validateLoginData(inputData);
+      setError(validateError);
+      if (Object.keys(validateError).length > 0) {
+        return;
+      }
 
       const response = await axios.post(`${API_URL}/login`, inputData, {
         withCredentials: true,
@@ -47,7 +55,6 @@ const Login = () => {
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
-      console.log(error);
     }
   };
 
@@ -75,12 +82,14 @@ const Login = () => {
                   name="email"
                   value={inputData.email}
                   onChange={handleInput}
-                  required
                   className="w-full text-sm border-b border-gray-300 focus:border-[#ff4d79] px-2 py-3 outline-none"
                   placeholder="Enter email"
                 />
                 <FaEnvelope className="w-[18px] h-[18px] absolute right-2" />
               </div>
+              {error?.email && (
+                <div className="text-red-500 text-sm mb-4">{error?.email}</div>
+              )}
             </div>
 
             <div className="mt-8">
@@ -90,7 +99,6 @@ const Login = () => {
                   name="password"
                   value={inputData.password}
                   onChange={handleInput}
-                  required
                   className="w-full text-sm border-b border-gray-300 focus:border-[#ff4d79] px-2 py-3 outline-none"
                   placeholder="Enter password"
                 />
@@ -106,14 +114,17 @@ const Login = () => {
                   />
                 )}
               </div>
+              {error?.password && (
+                <div className="text-red-500 text-sm mb-4">
+                  {error?.password}
+                </div>
+              )}
             </div>
-
-            {/* {error && <div className="text-red-500 text-sm mb-4">{error}</div>} */}
 
             <div className="mt-12">
               <button
                 type="submit"
-                className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wide rounded-md text-white bg-[#ff4d79] hover:bg-[#ff3366] focus:outline-none"
+                className="w-full shadow-xl py-2.5 px-4 text-sm font-semibold tracking-wide rounded-md text-white bg-[#ff4d79] hover:bg-[#ff3366] focus:outline-none cursor-pointer"
               >
                 Sign in
               </button>

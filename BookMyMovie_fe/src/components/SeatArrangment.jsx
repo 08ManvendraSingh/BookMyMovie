@@ -22,8 +22,10 @@ const SeatArrangment = () => {
       const response = await axios.get(`${API_URL}/show/${mId}`, {
         withCredentials: true,
       });
-      setShowData(response?.data?.data);
-      console.log(response);
+
+      if (response?.status == 200) {
+        setShowData(response?.data?.data);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -34,8 +36,10 @@ const SeatArrangment = () => {
       const response = await axios.get(`${API_URL}/seats/${showId}`, {
         withCredentials: true,
       });
-      setShowOccupiedSeats(response?.data?.data);
-      console.log(response);
+
+      if (response.status == 200) {
+        setShowOccupiedSeats(response?.data?.data);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -58,8 +62,6 @@ const SeatArrangment = () => {
           withCredentials: true,
         }
       );
-
-      console.log(response);
 
       if (response?.status == 200) {
         window.location = response?.data?.url;
@@ -112,9 +114,35 @@ const SeatArrangment = () => {
   };
 
   const rows = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-  const generateRow = (rowLetter) => {
-    return Array.from({ length: 9 }, (_, i) => `${rowLetter}${i + 1}`);
+  const renderSeatRow = (row, count) => {
+    return (
+      <div className="flex gap-1 justify-center my-1">
+        {Array.from({ length: count }).map((_, i) => {
+          const seatId = `${row}${i + 1}`;
+          return (
+            <button
+              key={i}
+              onClick={() => handelSeat(seatId)}
+              className={`w-8 h-8 text-xs flex items-center justify-center cursor-pointer rounded-sm border border-pink-500 transition-colors
+                           ${
+                             selecteSeats.includes(seatId)
+                               ? "bg-[#ff4d79]"
+                               : "bg-transparent"
+                           }
+                            ${
+                              showOccupiedSeats.includes(seatId) && "opacity-50"
+                            }
+                           `}
+              aria-label={`Seat ${seatId}`}
+            >
+              {seatId}
+            </button>
+          );
+        })}
+      </div>
+    );
   };
+
   return (
     <div className="flex flex-col min-h-screen bg-black bg-gradient-to-br from-black to-[#300] pt-4 pb-8 mt-18">
       <main className="flex-1 px-4 sm:px-6 md:px-8 lg:px-20 py-8 overflow-hidden">
@@ -162,139 +190,32 @@ const SeatArrangment = () => {
               <div className="min-w-[600px] flex flex-col items-center">
                 {/* First two rows (A, B) */}
                 <div className="mb-4">
-                  {rows.slice(0, 2).map((rowLetter) => (
-                    <div
-                      key={rowLetter}
-                      className="flex gap-1 justify-center my-1"
-                    >
-                      {generateRow(rowLetter).map((seat, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handelSeat(seat)}
-                          className={`w-8 h-8 text-xs flex items-center justify-center cursor-pointer rounded-sm border border-pink-500 transition-colors
-                           ${
-                             selecteSeats.includes(seat)
-                               ? "bg-[#ff4d79]"
-                               : "bg-transparent"
-                           }
-                            ${showOccupiedSeats.includes(seat) && "opacity-50"}
-                           `}
-                          aria-label={`Seat ${seat}`}
-                        >
-                          {seat}
-                        </button>
-                      ))}
-                    </div>
-                  ))}
+                  {rows.slice(0, 2).map((row) => renderSeatRow(row, 9))}
                 </div>
 
                 {/* Middle rows (C, D, E, F) */}
                 <div className="flex justify-center gap-8 mb-4">
                   {/* Left Column (C, D) */}
-                  <div>
-                    {rows.slice(2, 4).map((rowLetter) => (
-                      <div
-                        key={rowLetter}
-                        className="flex gap-1 justify-center my-1"
-                      >
-                        {generateRow(rowLetter).map((seat, i) => (
-                          <button
-                            key={i}
-                            className={`w-8 h-8 text-xs flex items-center justify-center rounded-sm border transition-colors
-                        //    ${
-                          //     isSelected
-                          //       ? "bg-pink-500 text-white border-pink-500"
-                          //       :
-                          "bg-transparent text-white border-pink-500/30 hover:bg-pink-500/20"
-                        }`}
-                            aria-label={`Seat ${seat}`}
-                          >
-                            {seat}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
+                  <div className="mb-4">
+                    {rows.slice(2, 4).map((row) => renderSeatRow(row, 9))}
                   </div>
 
                   {/* Right Column (E, F) */}
-                  <div>
-                    {rows.slice(4, 6).map((rowLetter) => (
-                      <div
-                        key={rowLetter}
-                        className="flex gap-1 justify-center my-1"
-                      >
-                        {generateRow(rowLetter).map((seat, i) => (
-                          <button
-                            key={i}
-                            className={`w-8 h-8 text-xs flex items-center justify-center rounded-sm border transition-colors
-                        //    ${
-                          //     isSelected
-                          //       ? "bg-pink-500 text-white border-pink-500"
-                          //       :
-                          "bg-transparent text-white border-pink-500/30 hover:bg-pink-500/20"
-                        }`}
-                            aria-label={`Seat ${seat}`}
-                          >
-                            {seat}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
+                  <div className="mb-4">
+                    {rows.slice(4, 6).map((row) => renderSeatRow(row, 9))}
                   </div>
                 </div>
 
                 {/* Last rows (G, H, I, J) */}
                 <div className="flex justify-center gap-8">
                   {/* Left Column (G, H) */}
-                  <div>
-                    {rows.slice(6, 8).map((rowLetter) => (
-                      <div
-                        key={rowLetter}
-                        className="flex gap-1 justify-center my-1"
-                      >
-                        {generateRow(rowLetter).map((seat, i) => (
-                          <button
-                            key={i}
-                            className={`w-8 h-8 text-xs flex items-center justify-center rounded-sm border transition-colors
-                        //    ${
-                          //     isSelected
-                          //       ? "bg-pink-500 text-white border-pink-500"
-                          //       :
-                          "bg-transparent text-white border-pink-500/30 hover:bg-pink-500/20"
-                        }`}
-                            aria-label={`Seat ${seat}`}
-                          >
-                            {seat}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
+                  <div className="mb-4">
+                    {rows.slice(6, 8).map((row) => renderSeatRow(row, 9))}
                   </div>
 
                   {/* Right Column (I, J) */}
-                  <div>
-                    {rows.slice(8, 10).map((rowLetter) => (
-                      <div
-                        key={rowLetter}
-                        className="flex gap-1 justify-center my-1"
-                      >
-                        {generateRow(rowLetter).map((seat, i) => (
-                          <button
-                            key={i}
-                            className={`w-8 h-8 text-xs flex items-center justify-center rounded-sm border transition-colors
-                        //    ${
-                          //     isSelected
-                          //       ? "bg-pink-500 text-white border-pink-500"
-                          //       :
-                          "bg-transparent text-white border-pink-500/30 hover:bg-pink-500/20"
-                        }`}
-                            aria-label={`Seat ${seat}`}
-                          >
-                            {seat}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
+                  <div className="mb-4">
+                    {rows.slice(8, 10).map((row) => renderSeatRow(row, 9))}
                   </div>
                 </div>
               </div>
@@ -304,11 +225,11 @@ const SeatArrangment = () => {
             <div className="flex justify-center">
               <button
                 onClick={() => handelBookTicket()}
-                className={`px-6 py-3 rounded-full flex items-center gap-2 transition-colors 
+                className={`px-6 py-3 rounded-full flex items-center gap-2 transition-colors cursor-pointer 
                 ${
                   selecteSeats.length > 0
-                    ? "bg-[#ff4d79] hover:bg-pink-600 text-white cursor-pointer"
-                    : "bg-pink-500/50 text-white/70 cursor-not-allowed"
+                    ? "bg-[#ff4d79] hover:bg-pink-600 text-white"
+                    : "bg-pink-500/50 text-white/70"
                 }`}
               >
                 Proceed to Checkout
