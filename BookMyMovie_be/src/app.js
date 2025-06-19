@@ -13,31 +13,16 @@ const app = express();
 
 dotenv.config();
 
-app.use(
-  "/api/stripe",
-  express.raw({ type: "application/json" }),
-  stripeWebHooks
-);
+app.use('/api/stripe',express.raw({type:"application/json"}),stripeWebHooks)
 
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = process.env.FRONTEND_URL.split(",");
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman or mobile apps)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true); // Allow the origin
-    } else {
-      callback(new Error("Not allowed by CORS")); // Block the origin
-    }
-  },
-  credentials: true, // Allow cookies and headers
-};
-
-// Use the CORS middleware
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 app.use("/", authRouter);
 app.use("/", userRouter);

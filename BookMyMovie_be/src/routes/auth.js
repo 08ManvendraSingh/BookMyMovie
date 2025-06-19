@@ -75,7 +75,12 @@ authRouter.post("/login", async (req, res) => {
       { expiresIn: "3h" }
     );
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None", // Required for cross-origin cookies (Vercel + API on another domain)
+      maxAge: 3 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({
       data: user,
