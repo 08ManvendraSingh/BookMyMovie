@@ -56,7 +56,7 @@ const BookingCard = ({ ticket }) => {
               Seat Number: {ticket?.bookedSeats.join(", ")}
             </p>
 
-            {!ticket.iPaid && (
+            {ticket?.isPaid==false && (
               <Link to={`${ticket?.paymentLink}`}>
                 <button className="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full text-sm transition-colors">
                   Pay Now
