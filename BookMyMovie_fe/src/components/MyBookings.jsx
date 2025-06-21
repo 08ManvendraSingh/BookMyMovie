@@ -2,18 +2,31 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../utils/constants";
 import { useSelector } from "react-redux";
-import {Link} from 'react-router';
+import { Link } from "react-router";
+import booked from "../assets/bookeds.png";
 
 const BookingCard = ({ ticket }) => {
   return (
-    <div className="bg-gradient-to-r from-[#2a0e1a] to-[#1a0a14] rounded-lg overflow-hidden w-72 sm:w-full md:w-full lg:w-full">
-      <div className="flex flex-col sm:flex-row">
-        {/* Movie Poster with Title Overlay */}
+    <div className="relative bg-gradient-to-r from-[#2a0e1a] to-[#1a0a14] rounded-lg overflow-hidden w-72 sm:w-full md:w-full lg:w-full">
+      {/* Show booked stamp if paid */}
+      {ticket?.isPaid && (
+        <img
+          src={booked}
+          alt="Ticket Booked"
+          className="absolute w-28 sm:w-36 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90 z-20 pointer-events-none"
+        />
+      )}
+
+      <div
+        className={`flex flex-col sm:flex-row ${
+          ticket?.isPaid ? "opacity-80" : ""
+        }`}
+      >
+        {/* Movie Poster */}
         <div className="relative w-full sm:w-48 h-48">
           <img
             src={ticket?.show?.movie?.movieImg}
             alt="title"
-            fill
             className="object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
@@ -22,7 +35,8 @@ const BookingCard = ({ ticket }) => {
             </h2>
           </div>
         </div>
-        {/* Booking Details */}
+
+        {/* Details */}
         <div className="flex-1 p-4 flex flex-col sm:flex-row justify-between">
           <div className="space-y-2">
             <p className="text-gray-400">
@@ -56,7 +70,7 @@ const BookingCard = ({ ticket }) => {
               Seat Number: {ticket?.bookedSeats.join(", ")}
             </p>
 
-            {ticket?.isPaid==false && (
+            {!ticket?.isPaid && (
               <Link to={`${ticket?.paymentLink}`}>
                 <button className="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-full text-sm transition-colors">
                   Pay Now
@@ -96,10 +110,11 @@ const MyBookings = () => {
     <main className="px-4 md:px-8 lg:px-16 xl:px-32 py-8 mt-18">
       <h1 className="text-2xl font-bold mb-6">My Bookings</h1>
 
-      {/* Booking Cards */}
       <div className="space-y-4 flex flex-col items-center">
         {bookings.length > 0 ? (
-          bookings.map((ticket) => <BookingCard ticket={ticket} />)
+          bookings.map((ticket) => (
+            <BookingCard key={ticket?._id} ticket={ticket} />
+          ))
         ) : (
           <div className="flex flex-col items-center justify-center mt-10 text-center">
             <img
